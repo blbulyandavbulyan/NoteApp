@@ -1,5 +1,6 @@
+from abc import ABC
+
 from note import Note, BaseNote
-from abc import ABC, abstractmethod
 
 
 class AbstractNoteRepository(ABC):
