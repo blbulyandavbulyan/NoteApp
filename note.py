@@ -1,16 +1,11 @@
 from datetime import date
 
 
-class Note(object):
-    def __init(self, note_id: int, title: str, text: str, save_date: date):
-        self.__note_id = note_id
+class BaseNote(object):
+    def __init(self, title: str, text: str, save_date: date):
         self.title = title
         self.text = text
         self.save_date = save_date
-
-    @property
-    def id(self) -> int:
-        return self.__note_id
 
     @property
     def title(self) -> str:
@@ -35,3 +30,14 @@ class Note(object):
     @save_date.setter
     def save_date(self, value: date):
         self.save_date = value
+
+
+class Note(BaseNote):
+
+    def __init__(self, note_id: int, base_note: BaseNote):
+        super().__init__(base_note.title, base_note.text, base_note.save_date)
+        self.__note_id = note_id
+
+    @property
+    def id(self) -> int:
+        return self.__note_id
