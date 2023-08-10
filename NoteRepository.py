@@ -5,6 +5,18 @@ import csv
 from datetime import datetime
 
 
+class NoteRepositoryException(RuntimeError):
+    pass
+
+
+class NoteNotFoundException(NoteRepositoryException):
+    pass
+
+
+class DuplicateIdException(NoteRepositoryException):
+    pass
+
+
 class AbstractNoteFileRepository(ABC):
     def __init__(self, file_name: str):
         self._notes: dict[int, Note] = {}
@@ -21,7 +33,7 @@ class AbstractNoteFileRepository(ABC):
                 if note.id > self.__next_id:
                     self.__next_id = note.id
             else:
-                raise RuntimeError(f"Дублирующиеся ИД контактов {note.id}")
+                raise DuplicateIdException(f"Дублирующиеся ИД заметок {note.id}")
 
     def __get_next_id(self) -> int:
         result = self.__next_id
@@ -30,7 +42,19 @@ class AbstractNoteFileRepository(ABC):
 
     def add(self, base_note: BaseNote):
         new_id = self.__get_next_id()
-        self._notes[new_id] = Note(new_id, base_note)
+        self._notes[new_id] = Note(new_id, datetime.now(), base_note)
+
+    def remove(self, note_id: int):
+        if note_id in self._notes:
+            self._notes.pop(note_id)
+        else:
+            raise NoteNotFoundException(f'заметки с id {note_id} нет')
+
+    def update(self, note_id: int, base_note: BaseNote):
+        if note_id in self._notes:
+            self._notes[note_id] = Note(note_id, datetime.now(), base_note)
+        else:
+            raise NoteNotFoundException(f'заметки с id {note_id} нет')
 
     def __getitem__(self, item):
         return self._notes[item]
