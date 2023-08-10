@@ -1,35 +1,35 @@
-from datetime import date
+from datetime import datetime
 
 
 class BaseNote(object):
-    def __init(self, title: str, text: str, save_date: date):
+    def __init__(self, title: str, text: str, save_date: datetime):
         self.title = title
         self.text = text
         self.save_date = save_date
 
     @property
     def title(self) -> str:
-        return self.title
+        return self.__title
 
     @property
     def text(self) -> str:
-        return self.text
+        return self.__text
 
     @title.setter
     def title(self, value: str):
-        self.title = value
+        self.__title = value
 
     @text.setter
     def text(self, value: str):
-        self.text = value
+        self.__text = value
 
     @property
-    def save_date(self) -> date:
-        return self.save_date
+    def save_date(self) -> datetime:
+        return self.__save_date
 
     @save_date.setter
-    def save_date(self, value: date):
-        self.save_date = value
+    def save_date(self, value: datetime):
+        self.__save_date = value
 
 
 class Note(BaseNote):
