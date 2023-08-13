@@ -27,9 +27,9 @@ class AbstractNoteFileRepository(ABC):
         self.load(file_name)
 
     def _parse_list_of_notes(self, notes: list[Note]):
-        self.__next_id: int = notes[0].id
+        self.__next_id: int = notes[0].id if len(notes) > 0 else 1
         for note in notes:
-            if note.id not in notes:
+            if note.id not in self._notes:
                 self._notes[note.id] = note
                 if note.id > self.__next_id:
                     self.__next_id = note.id
