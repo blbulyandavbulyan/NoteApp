@@ -58,8 +58,11 @@ class AbstractNoteFileRepository(ABC):
         else:
             raise NoteNotFoundException(f'заметки с id {note_id} нет')
 
-    def __getitem__(self, item):
-        return self._notes[item]
+    def find_all_by(self, start_date: datetime, end_date: datetime) -> list[Note]:
+        return [note for note in self._notes.values() if start_date <= note.save_date <= end_date]
+
+    def __getitem__(self, note_id):
+        return self._notes[note_id]
 
     @property
     def file_name(self):
