@@ -27,19 +27,18 @@ class AbstractNoteFileRepository(ABC):
         self.load(file_name)
 
     def _parse_list_of_notes(self, notes: list[Note]):
-        self.__next_id: int = notes[0].id if len(notes) > 0 else 1
+        self.__last_id: int = notes[0].id if len(notes) > 0 else 0
         for note in notes:
             if note.id not in self._notes:
                 self._notes[note.id] = note
-                if note.id > self.__next_id:
-                    self.__next_id = note.id
+                if note.id > self.__last_id:
+                    self.__last_id = note.id
             else:
                 raise DuplicateIdException(f"Дублирующиеся ИД заметок {note.id}")
 
     def __get_next_id(self) -> int:
-        result = self.__next_id
-        self.__next_id += 1
-        return result
+        self.__last_id += 1
+        return self.__last_id
 
     def add(self, base_note: BaseNote):
         new_id = self.__get_next_id()
@@ -100,5 +99,5 @@ class CsvNoteFileRepository(AbstractNoteFileRepository):
         with open(self.file_name, 'w', encoding="UTF-8") as file:
             writer = csv.writer(file)
             for (_, note) in self._notes.items():
-                writer.writerow([note.id, note.save_date, note.title, note.text])
+                writer.writerow([note.id, note.save_date.strftime(self._datetime_format), note.title, note.text])
         super().save()
