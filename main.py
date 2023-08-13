@@ -43,5 +43,6 @@ if __name__ == '__main__':
             else:
                 print("Должны быть указаны значения для --title или --text", file=sys.stderr)
                 exit(-5)
+        notes_repository.save()
     except NoteNotFoundException as e:
         print(str(e), file=sys.stderr)
