@@ -1,6 +1,8 @@
 import sys
 from note_repository import CsvNoteFileRepository, AbstractNoteFileRepository, NoteNotFoundException
-from note import BaseNote, Note
+from note import BaseNote
+from datetime import datetime
+
 if __name__ == '__main__':
     args = sys.argv
     command = ""
@@ -8,7 +10,8 @@ if __name__ == '__main__':
     command_arg = ""
     command_args: dict[str, str] = {
         'title': '',
-        'text': ''
+        'text': '',
+        'id': ''
     }
     file_name = "notes.csv"
     notes_repository = CsvNoteFileRepository(file_name)
@@ -20,7 +23,7 @@ if __name__ == '__main__':
                 print(f"Вы указали две команды: {command}, {arg}, за одну операцию можно выполнить только одну",
                       file=sys.stderr)
                 exit(-2)
-        elif arg in ("--title", "--text", "--id"):
+        elif arg in ("--title", "--text", "--id", "--start-date", "--end-date"):
             if value_needed:
                 print(f"После аргумента {command_arg} ожидалось значение!", file=sys.stderr)
             elif arg not in command_args:
@@ -33,16 +36,31 @@ if __name__ == '__main__':
             command_args[command_arg] = arg
             value_needed = False
     try:
-        if command == "add":
-            notes_repository.add(BaseNote(command_args['title'], command_args['text']))
-        elif command == "remove":
-            notes_repository.remove(int(command_args['id']))
-        elif command == "update":
-            if command_args['text'] != '' or command_args['title']:
-                notes_repository.update(int(command_args['id']), command_args['title'], command_args['text'])
-            else:
-                print("Должны быть указаны значения для --title или --text", file=sys.stderr)
-                exit(-5)
-        notes_repository.save()
+        if command in ("remove", "update", "add"):  # проверка на то, что команда модифицирующая
+            if command == "add":
+                notes_repository.add(BaseNote(command_args['title'], command_args['text']))
+            elif command == "remove":
+                notes_repository.remove(int(command_args['id']))
+            elif command == "update":
+                if command_args['text'] != '' or command_args['title']:
+                    notes_repository.update(int(command_args['id']), command_args['title'], command_args['text'])
+                else:
+                    print("Должны быть указаны значения для --title или --text", file=sys.stderr)
+                    exit(-5)
+            notes_repository.save()
+        elif command == "show":
+            if command_args['id'] != '':  # указали ид, значит показываем одну заметку по этому id
+                note_id = int(command_args['id'])
+                print(notes_repository[note_id])
+            else:  # ид не указали, будем показывать все с учётом фильтров
+                filter_date_format = "%m/%d/%y %H:%M"
+                start_date: datetime = datetime.strptime(command_args["start-date"], filter_date_format) if \
+                    command_args["start-date"] != '' else datetime.min
+                end_date: datetime = datetime.strptime(command_args["end-date"], filter_date_format) if command_args["start-date"] != '' else datetime.now()
+                found_notes = notes_repository.find_all_by(start_date, end_date)
+                if len(found_notes) == 0:
+                    print("Заметок пока нет")
+                for note in found_notes:
+                    print(note)
     except NoteNotFoundException as e:
         print(str(e), file=sys.stderr)
