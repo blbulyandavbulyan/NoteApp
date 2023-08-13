@@ -99,6 +99,6 @@ class CsvNoteFileRepository(AbstractNoteFileRepository):
     def save(self):
         with open(self.file_name, 'w', encoding="UTF-8") as file:
             writer = csv.writer(file)
-            for (_, note) in self._notes:
+            for (_, note) in self._notes.items():
                 writer.writerow([note.id, note.save_date, note.title, note.text])
         super().save()
