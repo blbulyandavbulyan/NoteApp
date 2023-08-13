@@ -61,7 +61,7 @@ class AbstractNoteFileRepository(ABC):
     def find_all_by(self, start_date: datetime, end_date: datetime) -> list[Note]:
         return [note for note in self._notes.values() if start_date <= note.save_date <= end_date]
 
-    def __getitem__(self, note_id):
+    def __getitem__(self, note_id: int):
         return self._notes[note_id]
 
     @property
