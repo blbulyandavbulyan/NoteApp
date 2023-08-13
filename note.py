@@ -37,3 +37,6 @@ class Note(BaseNote):
     @property
     def save_date(self) -> datetime:
         return self.__save_date
+
+    def __str__(self) -> str:
+        return f'ID: {self.id},\nНазвание: {self.title},\nТекст: {self.text}'
