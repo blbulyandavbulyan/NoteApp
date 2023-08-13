@@ -23,8 +23,8 @@ class AbstractNoteFileRepository(ABC):
         self._notes: dict[int, Note] = {}
         self.__file_name = file_name
         self._datetime_format = '%m/%d/%y %H:%M:%S'
+        self.__saved = False
         self.load(file_name)
-        self.__saved = True
 
     def _parse_list_of_notes(self, notes: list[Note]):
         self.__next_id: int = notes[0].id
