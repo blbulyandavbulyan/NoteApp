@@ -1,3 +1,4 @@
+import os.path
 from abc import ABC, abstractmethod
 
 from note import Note, BaseNote
@@ -50,9 +51,11 @@ class AbstractNoteFileRepository(ABC):
         else:
             raise NoteNotFoundException(f'заметки с id {note_id} нет')
 
-    def update(self, note_id: int, base_note: BaseNote):
+    def update(self, note_id: int, title: str = '', text: str = ''):
         if note_id in self._notes:
-            self._notes[note_id] = Note(note_id, datetime.now(), base_note)
+            old_note = self._notes[note_id]
+            new_note = BaseNote(title if title != '' else old_note.title, text if text != '' else old_note.text)
+            self._notes[note_id] = Note(note_id, datetime.now(), new_note)
         else:
             raise NoteNotFoundException(f'заметки с id {note_id} нет')
 
@@ -83,13 +86,14 @@ class CsvNoteFileRepository(AbstractNoteFileRepository):
 
     def load(self, file_name: str):
         notes_list: list[Note] = []
-        with open(file_name, 'r', encoding="UTF-8") as file:
-            reader = csv.reader(file)
-            for row in reader:
-                notes_list.append(
-                    Note(int(row[0]), datetime.strptime(row[1], self._datetime_format), BaseNote(row[2], row[3]))
-                )
-        super().load(file_name)
+        if os.path.exists(file_name):
+            with open(file_name, 'r', encoding="UTF-8") as file:
+                reader = csv.reader(file)
+                for row in reader:
+                    notes_list.append(
+                        Note(int(row[0]), datetime.strptime(row[1], self._datetime_format), BaseNote(row[2], row[3]))
+                    )
+            super().load(file_name)
         self._parse_list_of_notes(notes_list)
 
     def save(self):
