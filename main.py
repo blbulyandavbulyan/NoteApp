@@ -11,12 +11,14 @@ if __name__ == '__main__':
     command_args: dict[str, str] = {
         'title': '',
         'text': '',
-        'id': ''
+        'id': '',
+        'start-date': '',
+        'end-date': ''
     }
     file_name = "notes.csv"
     notes_repository = CsvNoteFileRepository(file_name)
     for arg in args:
-        if arg in ("add", "remove", "update"):
+        if arg in ("add", "remove", "update", "show"):
             if command == "":
                 command = arg
             else:
@@ -50,13 +52,15 @@ if __name__ == '__main__':
             notes_repository.save()
         elif command == "show":
             if command_args['id'] != '':  # указали ид, значит показываем одну заметку по этому id
-                note_id = int(command_args['id'])
-                print(notes_repository[note_id])
+                try:
+                    note_id = int(command_args['id'])
+                    print(notes_repository[note_id])
+                except KeyError:
+                    print(f"Заметки с заданным ID {command_args['id']} не существует", file=sys.stderr)
             else:  # ид не указали, будем показывать все с учётом фильтров
                 filter_date_format = "%m/%d/%y %H:%M"
-                start_date: datetime = datetime.strptime(command_args["start-date"], filter_date_format) if \
-                    command_args["start-date"] != '' else datetime.min
-                end_date: datetime = datetime.strptime(command_args["end-date"], filter_date_format) if command_args["start-date"] != '' else datetime.now()
+                start_date: datetime = datetime.strptime(command_args["start-date"], filter_date_format) if command_args["start-date"] != '' else datetime.min
+                end_date: datetime = datetime.strptime(command_args["end-date"], filter_date_format) if command_args["end-date"] != '' else datetime.now()
                 found_notes = notes_repository.find_all_by(start_date, end_date)
                 if len(found_notes) == 0:
                     print("Заметок пока нет")
